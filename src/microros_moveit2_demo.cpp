@@ -8,7 +8,7 @@
 #include <tf2_msgs/msg/tf_message.hpp>
 #include <std_msgs/msg/empty.hpp>
 
-static const rclcpp::Logger LOGGER = rclcpp::get_logger("moveit_cpp_demo");
+static const rclcpp::Logger LOGGER = rclcpp::get_logger("microros_moveit2_demo");
 
 class MoveItNode
 {
