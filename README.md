@@ -1,6 +1,6 @@
 # MoveIt 2 + micro-ROS demo
 
-This demos shows the integration between micro-ROS and MoveIt 2, a manipulation framework for robotics applications created and maintained by PickNik. 
+This demo shows the integration between micro-ROS and [MoveIt 2](https://moveit.ros.org/), a manipulation framework for robotics applications created and maintained by [PickNik](https://picknik.ai/). 
 
 By running this demo code, you can see how the MoveIt 2 manipulation and planification algorithms will be fed by the position (attitude) calculated in a pose estimator that runs in micro-ROS. This pose is estimated by using data from inertial sensors. The final result is displayed with the ROS visualization tool RViz.
 
@@ -49,4 +49,3 @@ source install/local_setup.bash
 
 ros2 launch microros_moveit2_demo microros_moveit2_demo.launch.py
 ```
-
