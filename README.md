@@ -2,7 +2,7 @@
 
 This demo shows the integration between micro-ROS and [MoveIt 2](https://moveit.ros.org/), a manipulation framework for robotics applications created and maintained by [PickNik](https://picknik.ai/). 
 
-By running this demo code, you can see how the MoveIt 2 manipulation and planification algorithms will be fed by the position (attitude) calculated in a pose estimator that runs in micro-ROS. This pose is estimated by using data from inertial sensors. The final result is displayed with the ROS visualization tool RViz.
+By running this demo code, you can see how the MoveIt 2 manipulation and planification algorithms are fed by the position (attitude) calculated in a pose estimator that runs in micro-ROS. This pose is calculated by using data from inertial sensors. The final result is displayed with the ROS visualization tool RViz.
 
 micro-ROS runs in a a STM32L4 Development IoT kit board in combination with Zephyr. The board offers several general-purpose I/O pins and peripherals to communicate its 32-bits microcontroller with the external world. It also includes a lot of sensors. For this demo, we make use of a 6-DoF Inertial Measurement Unit (LSM6DSL), composed of an accelerometer and a gyroscope, and a 3-DoF magnetometer (LIS3MDL). The fusion of the measurements fetched by these sensors outputs the pose, or relative orientation of the board with respect to a fixed reference frame.
 
