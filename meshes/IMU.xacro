@@ -5,7 +5,7 @@
 
   <link name="inertial_unit">
     <visual>
-      <origin xyz="0 0 0" rpy="1.57079632679 0 0" />
+      <origin xyz="-0.07 0.07 0" rpy="1.57079632679 0 0" />
       <geometry>
         <mesh filename="package://microros_moveit2_demo/meshes/arrow.dae" scale="0.001 0.001 0.001"/>
       </geometry>

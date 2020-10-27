@@ -213,7 +213,7 @@ Visualization Manager:
     - Alpha: 1
       Class: rviz_default_plugins/RobotModel
       Collision Enabled: false
-      Description File: /workspaces/develop_moveit2/install/microros_moveit2_demo/share/microros_moveit2_demo/meshes/IMU.xacro
+      Description File: /workspaces/develop_moveit2/src/micro-ROS_moveit2_demo/meshes/IMU.xacro
       Description Source: File
       Description Topic:
         Depth: 5
@@ -317,5 +317,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1853
-  X: 1303
+  X: 1039
   Y: 1107
