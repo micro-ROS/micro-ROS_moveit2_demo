@@ -26,14 +26,16 @@ def load_yaml(package_name, file_path):
 
 def generate_launch_description():
     # Get parameters for the Servo node
-    servo_yaml = load_yaml('moveit_servo', 'config/panda_simulated_config.yaml')
+    servo_yaml = load_yaml('microros_moveit2_demo', 'config/open_manipulator_x_robot_simulated_config.yaml')
     servo_params = { 'moveit_servo' : servo_yaml }
 
     # Get URDF and SRDF
-    robot_description_config = load_file('moveit_resources_panda_description', 'urdf/panda.urdf')
+    robot_description_config = load_file('microros_moveit2_demo', 'config/open_manipulator_x_robot.urdf.xacro')
     robot_description = {'robot_description' : robot_description_config}
 
-    robot_description_semantic_config = load_file('moveit_resources_panda_moveit_config', 'config/panda.srdf')
+    kinematics_yaml = load_yaml('microros_moveit2_demo', 'config/open_manipulator_x_robot_kinematics.yaml')
+
+    robot_description_semantic_config = load_file('microros_moveit2_demo', 'config/open_manipulator_x_robot.srdf')
     robot_description_semantic = {'robot_description_semantic' : robot_description_semantic_config}
 
     # A node to publish world -> panda_link0 transform
@@ -41,7 +43,7 @@ def generate_launch_description():
                      executable='static_transform_publisher',
                      name='static_transform_publisher',
                      output='log',
-                     arguments=['0.0', '0.0', '0.0', '0.0', '0.0', '0.0', 'world', 'panda_link0'])
+                     arguments=['0.0', '0.0', '0.0', '0.0', '0.0', '0.0', 'world', 'link1'])
 
     # The servo cpp interface demo
     # Creates the Servo node and publishes commands to it
@@ -49,7 +51,7 @@ def generate_launch_description():
         package='microros_moveit2_demo',
         executable='microros_moveit2servo_demo',
         output='screen',
-        parameters=[servo_params, robot_description, robot_description_semantic ]
+        parameters=[servo_params, robot_description, robot_description_semantic, kinematics_yaml]
     )
 
     # Publishes tf's for the robot
@@ -61,7 +63,7 @@ def generate_launch_description():
     )
 
     # RViz
-    rviz_config_file = get_package_share_directory('moveit_servo') + "/config/demo_rviz_config.rviz"
+    rviz_config_file = get_package_share_directory('microros_moveit2_demo') + "/launch/microros_moveit2_demo_openmanipulator.rviz"
     rviz_node = Node(package='rviz2',
                      executable='rviz2',
                      name='rviz2',
@@ -70,11 +72,13 @@ def generate_launch_description():
                      parameters=[robot_description, robot_description_semantic])
 
     # Is a perfect controller without dynamics
-    fake_joint_driver_node = Node(package='fake_joint_driver',
-                                  executable='fake_joint_driver_node',
-                                  parameters=[{'controller_name': 'fake_joint_trajectory_controller'},
-                                              os.path.join(get_package_share_directory("moveit_servo"), "config", "panda_controllers.yaml"),
-                                              os.path.join(get_package_share_directory("moveit_servo"), "config", "start_positions.yaml"),
-                                              robot_description])
+    # fake_joint_driver_node = Node(package='fake_joint_driver',
+    #                               executable='fake_joint_driver_node',
+    #                               parameters=[{'controller_name': 'fake_joint_trajectory_controller'},
+    #                                           os.path.join(get_package_share_directory("microros_moveit2_demo"), "config", "open_manipulator_x_robot_controller_fakecontroller.yaml"),
+    #                                           os.path.join(get_package_share_directory("microros_moveit2_demo"), "config", "open_manipulator_x_robot_startposition_fakecontroller.yaml"),
+    #                                           robot_description]
+                                #   )
 
-    return LaunchDescription([ rviz_node, static_tf, servo_node, fake_joint_driver_node, robot_state_publisher ])
+    # return LaunchDescription([ rviz_node, static_tf, servo_node, fake_joint_driver_node, robot_state_publisher ])
+    return LaunchDescription([ rviz_node, static_tf, servo_node ])

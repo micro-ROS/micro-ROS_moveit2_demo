@@ -28,7 +28,7 @@ public:
     moveit_cpp_->getPlanningSceneMonitor()->setPlanningScenePublishingFrequency(100);
 
     RCLCPP_INFO(LOGGER, "Initialize PlanningComponent");
-    arm_ = std::make_shared<moveit::planning_interface::PlanningComponent>("panda_arm", moveit_cpp_);
+    arm_ = std::make_shared<moveit::planning_interface::PlanningComponent>("open_manipulator_x_arm", moveit_cpp_);
 
     // Init micro-ROS subscribers
     auto trigger_callback = [this](const std_msgs::msg::Empty::SharedPtr msg) -> void
@@ -47,7 +47,7 @@ public:
       goal_pose.pose.orientation.z *= 1/mod;
       goal_pose.pose.orientation.w *= 1/mod;
 
-      arm_->setGoal(goal_pose, "panda_link8");
+      arm_->setGoal(goal_pose, "link5");
 
       // Run actual plan
       RCLCPP_INFO(LOGGER, "Plan to goal: %f %f %f", goal_pose.pose.orientation.x, goal_pose.pose.orientation.y, goal_pose.pose.orientation.z);
@@ -75,7 +75,7 @@ public:
 
     trigger_sub_ = node_->create_subscription<std_msgs::msg::Empty>("trigger_moveit2", rclcpp::QoS(rclcpp::KeepLast(1)), trigger_callback);
     tf_sub_ = node_->create_subscription<tf2_msgs::msg::TFMessage>("tf", rclcpp::QoS(rclcpp::KeepLast(1)), tf_callback);
-    last_pose_.header.frame_id = "panda_link0";
+    last_pose_.header.frame_id = "link1";
   }
 
 private:

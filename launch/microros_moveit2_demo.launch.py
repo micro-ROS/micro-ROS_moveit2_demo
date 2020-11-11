@@ -30,16 +30,16 @@ def generate_launch_description():
     moveit_cpp_yaml_file_name = get_package_share_directory('microros_moveit2_demo') + "/config/moveit_cpp.yaml"
 
     # Component yaml files are grouped in separate namespaces
-    robot_description_config = load_file('moveit_resources_panda_description', 'urdf/panda.urdf')
+    robot_description_config = load_file('open_manipulator_x_description', 'urdf/open_manipulator_x_robot.urdf.xacro')
     robot_description = {'robot_description' : robot_description_config}
 
-    robot_description_semantic_config = load_file('moveit_resources_panda_moveit_config', 'config/panda.srdf')
+    robot_description_semantic_config = load_file('microros_moveit2_demo', 'config/open_manipulator_x_robot.srdf')
     robot_description_semantic = {'robot_description_semantic' : robot_description_semantic_config}
 
-    kinematics_yaml = load_yaml('moveit_resources_panda_moveit_config', 'config/kinematics.yaml')
+    kinematics_yaml = load_yaml('microros_moveit2_demo', 'config/open_manipulator_x_robot_kinematics.yaml')
     robot_description_kinematics = { 'robot_description_kinematics' : kinematics_yaml }
 
-    controllers_yaml = load_yaml('microros_moveit2_demo', 'config/controllers.yaml')
+    controllers_yaml = load_yaml('microros_moveit2_demo', 'config/open_manipulator_x_robot_controller.yaml')
     moveit_controllers = { 'moveit_simple_controller_manager' : controllers_yaml,
                            'moveit_controller_manager': 'moveit_simple_controller_manager/MoveItSimpleControllerManager'}
 
@@ -47,7 +47,7 @@ def generate_launch_description():
         'planning_plugin' : 'ompl_interface/OMPLPlanner',
         'request_adapters' : """default_planner_request_adapters/AddTimeOptimalParameterization default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints""" ,
         'start_state_max_bounds_error' : 0.1 } }
-    ompl_planning_yaml = load_yaml('moveit_resources_panda_moveit_config', 'config/ompl_planning.yaml')
+    ompl_planning_yaml = load_yaml('microros_moveit2_demo', 'config/open_manipulator_x_robot_ompl_planning.yaml')
     ompl_planning_pipeline_config['ompl'].update(ompl_planning_yaml)
 
     # MoveItCpp demo executable
@@ -65,7 +65,7 @@ def generate_launch_description():
                                            moveit_controllers])
 
     # RViz
-    rviz_config_file = get_package_share_directory('microros_moveit2_demo') + "/launch/microros_moveit2_demo.rviz"
+    rviz_config_file = get_package_share_directory('microros_moveit2_demo') + "/launch/microros_moveit2_demo_openmanipulator.rviz"
     rviz_node = Node(package='rviz2',
                      executable='rviz2',
                      name='rviz2',
@@ -79,7 +79,7 @@ def generate_launch_description():
                      executable='static_transform_publisher',
                      name='static_transform_publisher',
                      output='log',
-                     arguments=['0.0', '0.0', '0.0', '0.0', '0.0', '0.0', 'world', 'panda_link0'])
+                     arguments=['0.0', '0.0', '0.0', '0.0', '0.0', '0.0', 'world', 'link1'])
 
     # Publish TF
     robot_state_publisher = Node(package='robot_state_publisher',
@@ -93,9 +93,9 @@ def generate_launch_description():
                                   executable='fake_joint_driver_node',
                                   # TODO(JafarAbdi): Why this launch the two nodes (controller manager and the fake joint driver) with the same name!
                                   # name='fake_joint_driver_node',
-                                  parameters=[{'controller_name': 'panda_arm_controller'},
-                                              os.path.join(get_package_share_directory("run_moveit_cpp"), "config", "panda_controllers.yaml"),
-                                              os.path.join(get_package_share_directory("run_moveit_cpp"), "config", "start_positions.yaml"),
+                                  parameters=[{'controller_name': 'open_manipulator_x_arm_controller'},
+                                              os.path.join(get_package_share_directory("microros_moveit2_demo"), "config", "open_manipulator_x_robot_controller_fakecontroller.yaml"),
+                                              os.path.join(get_package_share_directory("microros_moveit2_demo"), "config", "open_manipulator_x_robot_startposition_fakecontroller.yaml"),
                                               robot_description]
                                   )
 

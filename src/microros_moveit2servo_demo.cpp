@@ -61,6 +61,7 @@ public:
     tf_buffer_ = std::make_shared<tf2_ros::Buffer>(node_->get_clock());
     planning_scene_monitor_ = std::make_shared<planning_scene_monitor::PlanningSceneMonitor>(
         node_, "robot_description", tf_buffer_, "planning_scene_monitor");
+    planning_scene_monitor_->providePlanningSceneService();
 
     // Get the planning_scene_monitor to publish scene diff's for RViz visualization
     if (planning_scene_monitor_->getPlanningScene())
@@ -87,19 +88,19 @@ public:
     {
       if(msg->transforms[0].child_frame_id == "/inertial_unit"){
         if(movement_mode_jog_){
-          RCLCPP_INFO(LOGGER, "jog mode - TF: %f %f %f",msg->transforms[0].transform.rotation.x, msg->transforms[0].transform.rotation.y, msg->transforms[0].transform.rotation.z);
+          // RCLCPP_INFO(LOGGER, "jog mode - TF: %f %f %f",msg->transforms[0].transform.rotation.x, msg->transforms[0].transform.rotation.y, msg->transforms[0].transform.rotation.z);
           auto msg_out = std::make_unique<control_msgs::msg::JointJog>();
           msg_out->header.stamp = node_->now();
-          msg_out->joint_names.push_back("panda_joint1");
+          msg_out->joint_names.push_back("joint1");
           msg_out->velocities.push_back(msg->transforms[0].transform.rotation.x*5);
-          msg_out->joint_names.push_back("panda_joint6");
+          msg_out->joint_names.push_back("joint4");
           msg_out->velocities.push_back(msg->transforms[0].transform.rotation.y*5);
           joint_cmd_pub_->publish(std::move(msg_out));
         }else{
-          RCLCPP_INFO(LOGGER, "twist mode - TF: %f %f %f",msg->transforms[0].transform.rotation.x, msg->transforms[0].transform.rotation.y, msg->transforms[0].transform.rotation.z);
+          // RCLCPP_INFO(LOGGER, "twist mode - TF: %f %f %f",msg->transforms[0].transform.rotation.x, msg->transforms[0].transform.rotation.y, msg->transforms[0].transform.rotation.z);
           auto msg_out = std::make_unique<geometry_msgs::msg::TwistStamped>();
           msg_out->header.stamp = node_->now();
-          msg_out->header.frame_id = "panda_link0";
+          msg_out->header.frame_id = "link5";
           msg_out->twist.linear.x = msg->transforms[0].transform.rotation.y;
           msg_out->twist.linear.y = msg->transforms[0].transform.rotation.x;
           twist_cmd_pub_->publish(std::move(msg_out));
@@ -131,6 +132,7 @@ public:
       rclcpp::Clock& clock = *node_->get_clock();
       RCLCPP_WARN_STREAM_THROTTLE(LOGGER, clock, 5000, "Waiting for ServoCalcs to recieve joint states");
     }
+    
     servo_->start();
   }
 
@@ -164,7 +166,7 @@ int main(int argc, char** argv)
 
   // Create collision object, in the way of servoing
   moveit_msgs::msg::CollisionObject collision_object;
-  collision_object.header.frame_id = "panda_link0";
+  collision_object.header.frame_id = "link1";
   collision_object.id = "box";
 
   shape_msgs::msg::SolidPrimitive box;

@@ -1,0 +1,17 @@
+fake_joint_driver_node:
+  ros__parameters:
+    start_position:
+      joints:
+        - gripper
+        - gripper_sub
+        - joint1
+        - joint2
+        - joint3
+        - joint4
+      values:
+        - 0.0
+        - 0.0
+        - 0.0
+        - 0.0
+        - 0.0
+        - 0.0
