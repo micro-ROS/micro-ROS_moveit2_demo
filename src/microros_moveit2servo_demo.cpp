@@ -55,7 +55,7 @@ static const rclcpp::Logger LOGGER = rclcpp::get_logger("moveit_servo.servo_demo
 class ServoCppDemo
 {
 public:
-  ServoCppDemo(rclcpp::Node::SharedPtr node) : node_(node), movement_mode_jog_(false)
+  ServoCppDemo(rclcpp::Node::SharedPtr node) : node_(node), movement_mode_jog_(true)
   {
     // Create the planning_scene_monitor
     tf_buffer_ = std::make_shared<tf2_ros::Buffer>(node_->get_clock());
@@ -88,29 +88,19 @@ public:
     {
       if(msg->transforms[0].child_frame_id == "/inertial_unit"){
         if(movement_mode_jog_){
-          RCLCPP_INFO(LOGGER, "jog mode - TF: %f %f %f",msg->transforms[0].transform.rotation.x, msg->transforms[0].transform.rotation.y, msg->transforms[0].transform.rotation.z);
+          // RCLCPP_INFO(LOGGER, "jog mode - TF: %f %f %f",msg->transforms[0].transform.rotation.x, msg->transforms[0].transform.rotation.y, msg->transforms[0].transform.rotation.z);
           auto msg_out = std::make_unique<control_msgs::msg::JointJog>();
           msg_out->header.stamp = node_->now();
 
           msg_out->joint_names.push_back("joint1");
           msg_out->velocities.push_back(msg->transforms[0].transform.rotation.x*5);
-          msg_out->displacements.push_back(msg->transforms[0].transform.rotation.x*5);
-
-          msg_out->joint_names.push_back("joint2");
-          msg_out->velocities.push_back(-0.5);
-          msg_out->displacements.push_back(0.0);
-
-          msg_out->joint_names.push_back("joint3");
-          msg_out->velocities.push_back(0.0);
-          msg_out->displacements.push_back(0.0);
 
           msg_out->joint_names.push_back("joint4");
           msg_out->velocities.push_back(msg->transforms[0].transform.rotation.y*5);
-          msg_out->displacements.push_back(msg->transforms[0].transform.rotation.x*5);
 
           joint_cmd_pub_->publish(std::move(msg_out));
         }else{
-          RCLCPP_INFO(LOGGER, "twist mode - TF: %f %f %f",msg->transforms[0].transform.rotation.x, msg->transforms[0].transform.rotation.y, msg->transforms[0].transform.rotation.z);
+          // RCLCPP_INFO(LOGGER, "twist mode - TF: %f %f %f",msg->transforms[0].transform.rotation.x, msg->transforms[0].transform.rotation.y, msg->transforms[0].transform.rotation.z);
           auto msg_out = std::make_unique<geometry_msgs::msg::TwistStamped>();
           msg_out->header.stamp = node_->now();
           msg_out->header.frame_id = "link4";
@@ -184,12 +174,12 @@ int main(int argc, char** argv)
 
   shape_msgs::msg::SolidPrimitive box;
   box.type = box.BOX;
-  box.dimensions = { 0.1, 0.4, 0.1 };
+  box.dimensions = { 0.1, 0.1, 0.1 };
 
   geometry_msgs::msg::Pose box_pose;
-  box_pose.position.x = 0.6;
-  box_pose.position.y = 0.0;
-  box_pose.position.z = 0.6;
+  box_pose.position.x = 0.1;
+  box_pose.position.y = 0;
+  box_pose.position.z = 0;
 
   collision_object.primitives.push_back(box);
   collision_object.primitive_poses.push_back(box_pose);
