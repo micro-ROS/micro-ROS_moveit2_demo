@@ -55,7 +55,7 @@ static const rclcpp::Logger LOGGER = rclcpp::get_logger("moveit_servo.servo_demo
 class ServoCppDemo
 {
 public:
-  ServoCppDemo(rclcpp::Node::SharedPtr node) : node_(node), movement_mode_jog_(true)
+  ServoCppDemo(rclcpp::Node::SharedPtr node) : node_(node), movement_mode_jog_(false)
   {
     // Create the planning_scene_monitor
     tf_buffer_ = std::make_shared<tf2_ros::Buffer>(node_->get_clock());
@@ -91,10 +91,23 @@ public:
           RCLCPP_INFO(LOGGER, "jog mode - TF: %f %f %f",msg->transforms[0].transform.rotation.x, msg->transforms[0].transform.rotation.y, msg->transforms[0].transform.rotation.z);
           auto msg_out = std::make_unique<control_msgs::msg::JointJog>();
           msg_out->header.stamp = node_->now();
+
           msg_out->joint_names.push_back("joint1");
           msg_out->velocities.push_back(msg->transforms[0].transform.rotation.x*5);
+          msg_out->displacements.push_back(msg->transforms[0].transform.rotation.x*5);
+
+          msg_out->joint_names.push_back("joint2");
+          msg_out->velocities.push_back(-0.5);
+          msg_out->displacements.push_back(0.0);
+
+          msg_out->joint_names.push_back("joint3");
+          msg_out->velocities.push_back(0.0);
+          msg_out->displacements.push_back(0.0);
+
           msg_out->joint_names.push_back("joint4");
           msg_out->velocities.push_back(msg->transforms[0].transform.rotation.y*5);
+          msg_out->displacements.push_back(msg->transforms[0].transform.rotation.x*5);
+
           joint_cmd_pub_->publish(std::move(msg_out));
         }else{
           RCLCPP_INFO(LOGGER, "twist mode - TF: %f %f %f",msg->transforms[0].transform.rotation.x, msg->transforms[0].transform.rotation.y, msg->transforms[0].transform.rotation.z);

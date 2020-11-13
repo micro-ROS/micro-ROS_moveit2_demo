@@ -14,11 +14,11 @@ scale:
   linear:  0.4  # Max linear velocity. Meters per publish_period. Unit is [m/s]. Only used for Cartesian commands.
   rotational:  0.8 # Max angular velocity. Rads per publish_period. Unit is [rad/s]. Only used for Cartesian commands.
   # Max joint angular/linear velocity. Rads or Meters per publish period. Only used for joint commands on joint_command_in_topic.
-  joint: 0.5
+  joint: 3
 
 ## Properties of outgoing commands
 command_out_topic: /open_manipulator/joint_trajectory # Publish outgoing commands here
-publish_period: 0.1  # 1/Nominal publish rate [seconds]
+publish_period: 0.034  # 1/Nominal publish rate [seconds]
 
 # What type of topic does your robot driver expect?
 # Currently supported are std_msgs/Float64MultiArray or trajectory_msgs/JointTrajectory
@@ -26,8 +26,8 @@ command_out_type: trajectory_msgs/JointTrajectory
 
 # What to publish? Can save some bandwidth as most robots only require positions or velocities
 publish_joint_positions: true
-publish_joint_velocities: true
-publish_joint_accelerations: true
+publish_joint_velocities: false
+publish_joint_accelerations: false
 
 ## Incoming Joint State properties
 joint_topic:  joint_states
