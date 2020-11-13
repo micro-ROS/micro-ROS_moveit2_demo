@@ -1,7 +1,7 @@
 ###############################################
 # Modify all parameters related to servoing here
 ###############################################
-use_gazebo: true # Whether the robot is started in a Gazebo simulation environment
+use_gazebo: false # Whether the robot is started in a Gazebo simulation environment
 status_topic: servo_server/status # Publish status to this topic
 
 ## Properties of incoming commands
@@ -17,8 +17,8 @@ scale:
   joint: 0.5
 
 ## Properties of outgoing commands
-command_out_topic: /fake_joint_trajectory_controller/joint_trajectory # Publish outgoing commands here
-publish_period: 0.034  # 1/Nominal publish rate [seconds]
+command_out_topic: /open_manipulator/joint_trajectory # Publish outgoing commands here
+publish_period: 0.1  # 1/Nominal publish rate [seconds]
 
 # What type of topic does your robot driver expect?
 # Currently supported are std_msgs/Float64MultiArray or trajectory_msgs/JointTrajectory
@@ -26,8 +26,8 @@ command_out_type: trajectory_msgs/JointTrajectory
 
 # What to publish? Can save some bandwidth as most robots only require positions or velocities
 publish_joint_positions: true
-publish_joint_velocities: false
-publish_joint_accelerations: false
+publish_joint_velocities: true
+publish_joint_accelerations: true
 
 ## Incoming Joint State properties
 joint_topic:  joint_states
@@ -44,8 +44,8 @@ incoming_command_timeout:  1  # Stop servoing if X seconds elapse without a new 
 num_outgoing_halt_msgs_to_publish: 4
 
 ## Configure handling of singularities and joint limits
-lower_singularity_threshold:  170  # Start decelerating when the condition number hits this (close to singularity)
-hard_stop_singularity_threshold: 300 # Stop when the condition number hits this
+lower_singularity_threshold:  17  # Start decelerating when the condition number hits this (close to singularity)
+hard_stop_singularity_threshold: 30 # Stop when the condition number hits this
 joint_limit_margin: 0.1 # added as a buffer to joint limits [radians]. If moving quickly, make this larger.
 
 ## Collision checking for the entire robot body

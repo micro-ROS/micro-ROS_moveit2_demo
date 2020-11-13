@@ -88,7 +88,7 @@ public:
     {
       if(msg->transforms[0].child_frame_id == "/inertial_unit"){
         if(movement_mode_jog_){
-          // RCLCPP_INFO(LOGGER, "jog mode - TF: %f %f %f",msg->transforms[0].transform.rotation.x, msg->transforms[0].transform.rotation.y, msg->transforms[0].transform.rotation.z);
+          RCLCPP_INFO(LOGGER, "jog mode - TF: %f %f %f",msg->transforms[0].transform.rotation.x, msg->transforms[0].transform.rotation.y, msg->transforms[0].transform.rotation.z);
           auto msg_out = std::make_unique<control_msgs::msg::JointJog>();
           msg_out->header.stamp = node_->now();
           msg_out->joint_names.push_back("joint1");
@@ -97,10 +97,10 @@ public:
           msg_out->velocities.push_back(msg->transforms[0].transform.rotation.y*5);
           joint_cmd_pub_->publish(std::move(msg_out));
         }else{
-          // RCLCPP_INFO(LOGGER, "twist mode - TF: %f %f %f",msg->transforms[0].transform.rotation.x, msg->transforms[0].transform.rotation.y, msg->transforms[0].transform.rotation.z);
+          RCLCPP_INFO(LOGGER, "twist mode - TF: %f %f %f",msg->transforms[0].transform.rotation.x, msg->transforms[0].transform.rotation.y, msg->transforms[0].transform.rotation.z);
           auto msg_out = std::make_unique<geometry_msgs::msg::TwistStamped>();
           msg_out->header.stamp = node_->now();
-          msg_out->header.frame_id = "link5";
+          msg_out->header.frame_id = "link4";
           msg_out->twist.linear.x = msg->transforms[0].transform.rotation.y;
           msg_out->twist.linear.y = msg->transforms[0].transform.rotation.x;
           twist_cmd_pub_->publish(std::move(msg_out));

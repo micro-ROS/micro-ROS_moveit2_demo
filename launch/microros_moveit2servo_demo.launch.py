@@ -33,17 +33,15 @@ def generate_launch_description():
     robot_description_config = load_file('microros_moveit2_demo', 'config/open_manipulator_x_robot.urdf.xacro')
     robot_description = {'robot_description' : robot_description_config}
 
-    kinematics_yaml = load_yaml('microros_moveit2_demo', 'config/open_manipulator_x_robot_kinematics.yaml')
-
     robot_description_semantic_config = load_file('microros_moveit2_demo', 'config/open_manipulator_x_robot.srdf')
     robot_description_semantic = {'robot_description_semantic' : robot_description_semantic_config}
 
     # A node to publish world -> panda_link0 transform
-    static_tf = Node(package='tf2_ros',
-                     executable='static_transform_publisher',
-                     name='static_transform_publisher',
-                     output='log',
-                     arguments=['0.0', '0.0', '0.0', '0.0', '0.0', '0.0', 'world', 'link1'])
+    # static_tf = Node(package='tf2_ros',
+    #                  executable='static_transform_publisher',
+    #                  name='static_transform_publisher',
+    #                  output='log',
+    #                  arguments=['0.0', '0.0', '0.0', '0.0', '0.0', '0.0', 'world', 'link1'])
 
     # The servo cpp interface demo
     # Creates the Servo node and publishes commands to it
@@ -51,34 +49,25 @@ def generate_launch_description():
         package='microros_moveit2_demo',
         executable='microros_moveit2servo_demo',
         output='screen',
-        parameters=[servo_params, robot_description, robot_description_semantic, kinematics_yaml]
+        parameters=[servo_params, robot_description, robot_description_semantic]
     )
 
     # Publishes tf's for the robot
-    robot_state_publisher = Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        output='screen',
-        parameters=[robot_description]
-    )
+    # robot_state_publisher = Node(
+    #     package='robot_state_publisher',
+    #     executable='robot_state_publisher',
+    #     output='screen',
+    #     parameters=[robot_description]
+    # )
 
     # RViz
-    rviz_config_file = get_package_share_directory('microros_moveit2_demo') + "/launch/microros_moveit2_demo_openmanipulator.rviz"
-    rviz_node = Node(package='rviz2',
-                     executable='rviz2',
-                     name='rviz2',
-                     output='log',
-                     arguments=['-d', rviz_config_file],
-                     parameters=[robot_description, robot_description_semantic])
+    # rviz_config_file = get_package_share_directory('microros_moveit2_demo') + "/launch/microros_moveit2_demo_openmanipulator.rviz"
+    # rviz_node = Node(package='rviz2',
+    #                  executable='rviz2',
+    #                  name='rviz2',
+    #                  output='log',
+    #                  arguments=['-d', rviz_config_file],
+    #                  parameters=[robot_description, robot_description_semantic])
 
-    # Is a perfect controller without dynamics
-    # fake_joint_driver_node = Node(package='fake_joint_driver',
-    #                               executable='fake_joint_driver_node',
-    #                               parameters=[{'controller_name': 'fake_joint_trajectory_controller'},
-    #                                           os.path.join(get_package_share_directory("microros_moveit2_demo"), "config", "open_manipulator_x_robot_controller_fakecontroller.yaml"),
-    #                                           os.path.join(get_package_share_directory("microros_moveit2_demo"), "config", "open_manipulator_x_robot_startposition_fakecontroller.yaml"),
-    #                                           robot_description]
-                                #   )
-
-    # return LaunchDescription([ rviz_node, static_tf, servo_node, fake_joint_driver_node, robot_state_publisher ])
-    return LaunchDescription([ rviz_node, static_tf, servo_node ])
+    # return LaunchDescription([ rviz_node, static_tf, servo_node, robot_state_publisher])
+    return LaunchDescription([ servo_node ])
