@@ -24,6 +24,7 @@ ros2 run micro_ros_setup build_agent.sh
 
 # Build and flash the micro-ROS app
 ros2 run micro_ros_setup create_firmware_ws.sh zephyr discovery_l475_iot1
+# Check https://github.com/micro-ROS/zephyr_apps/tree/foxy/apps/attitude_estimator for instructions for tf2_msgs
 ros2 run micro_ros_setup configure_firmware.sh attitude_estimator -t serial -d 1
 ros2 run micro_ros_setup build_firmware.sh
 
