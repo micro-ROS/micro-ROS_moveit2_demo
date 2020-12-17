@@ -56,7 +56,7 @@ static const rclcpp::Logger LOGGER = rclcpp::get_logger("moveit_servo.servo_demo
 class ServoCppDemo
 {
 public:
-  ServoCppDemo(rclcpp::Node::SharedPtr node) : node_(node), movement_mode_jog_(false)
+  ServoCppDemo(rclcpp::Node::SharedPtr node) : node_(node), movement_mode_jog_(false), count_(0)
   {
     // Create the planning_scene_monitor
     tf_buffer_ = std::make_shared<tf2_ros::Buffer>(node_->get_clock());
@@ -78,85 +78,12 @@ public:
       RCLCPP_ERROR(LOGGER, "Planning scene not configured");
     }
 
-    // Init micro-ROS subscribers
-    auto trigger_callback = [this](const std_msgs::msg::Empty::SharedPtr msg) -> void
-    {
-      RCLCPP_INFO(LOGGER, "Changing mode");
-      movement_mode_jog_ = !movement_mode_jog_;
-    };
-
-    auto tf_callback = [this](const tf2_msgs::msg::TFMessage::SharedPtr msg) -> void
-    {
-      if(msg->transforms[0].child_frame_id == "/inertial_unit"){
-        if(movement_mode_jog_){
-          // RCLCPP_INFO(LOGGER, "jog mode - TF: %f %f %f",msg->transforms[0].transform.rotation.x, msg->transforms[0].transform.rotation.y, msg->transforms[0].transform.rotation.z);
-          auto msg_out = std::make_unique<control_msgs::msg::JointJog>();
-          msg_out->header.stamp = node_->now();
-
-          msg_out->joint_names.push_back("joint1");
-          msg_out->velocities.push_back(msg->transforms[0].transform.rotation.x*5);
-
-          msg_out->joint_names.push_back("joint4");
-          msg_out->velocities.push_back(msg->transforms[0].transform.rotation.y*5);
-
-          joint_cmd_pub_->publish(std::move(msg_out));
-        }else{
-          // RCLCPP_INFO(LOGGER, "twist mode - TF: %f %f %f",msg->transforms[0].transform.rotation.x, msg->transforms[0].transform.rotation.y, msg->transforms[0].transform.rotation.z);
-          auto msg_out = std::make_unique<geometry_msgs::msg::TwistStamped>();
-          msg_out->header.stamp = node_->now();
-          msg_out->header.frame_id = "link5";
-          msg_out->twist.linear.x = msg->transforms[0].transform.rotation.x*0.5;
-          msg_out->twist.linear.z = msg->transforms[0].transform.rotation.y*0.5;
-          twist_cmd_pub_->publish(std::move(msg_out));
-        }
-      }
-    };
-
-    auto sensor_callback = [this](const std_msgs::msg::Float32::SharedPtr msg) -> void
-    {
-      // Create collision object, in the way of servoing
-      moveit_msgs::msg::CollisionObject collision_object;
-      collision_object.header.frame_id = "link1";
-      collision_object.id = "box";
-
-      shape_msgs::msg::SolidPrimitive box;
-      box.type = box.BOX;
-      box.dimensions = { 0.03, 0.03, 0.11 };
-
-      geometry_msgs::msg::Pose box_pose;
-      box_pose.position.x = msg->data;
-      box_pose.position.y = 0;
-      box_pose.position.z = 0.055;
-
-      collision_object.primitives.push_back(box);
-      collision_object.primitive_poses.push_back(box_pose);
-      collision_object.operation = collision_object.ADD;
-
-      moveit_msgs::msg::PlanningSceneWorld psw;
-      psw.collision_objects.push_back(collision_object);
-
-      moveit_msgs::msg::PlanningScene ps;
-      ps.is_diff = true;
-      ps.world = psw;
-
-      // Publish the collision object to the planning scene
-      scene_pub->publish(ps);
-    };
-
-    trigger_sub_ = node_->create_subscription<std_msgs::msg::Empty>("trigger_moveit2", rclcpp::QoS(rclcpp::KeepLast(1)), trigger_callback);
-    tf_sub_ = node_->create_subscription<tf2_msgs::msg::TFMessage>("tf", rclcpp::QoS(rclcpp::KeepLast(1)), tf_callback);
-    sensor_sub_ = node_->create_subscription<std_msgs::msg::Float32>("/sensors/tof", rclcpp::QoS(rclcpp::KeepLast(1)), sensor_callback);
-
     // We need 2 different publishers for the different command types
     joint_cmd_pub_ = node_->create_publisher<control_msgs::msg::JointJog>("servo_server/delta_joint_cmds", 10);
     twist_cmd_pub_ = node_->create_publisher<geometry_msgs::msg::TwistStamped>("servo_server/delta_twist_cmds", 10);
 
     scene_pub = node->create_publisher<moveit_msgs::msg::PlanningScene>("/planning_scene", 10);
-  }
 
-  void start()
-  {
-    // Get Servo Parameters
     auto servo_parameters = std::make_shared<moveit_servo::ServoParameters>();
     if (!moveit_servo::readParameters(servo_parameters, node_, LOGGER))
     {
@@ -165,13 +92,9 @@ public:
 
     // Create Servo and start it
     servo_ = std::make_unique<moveit_servo::Servo>(node_, servo_parameters, planning_scene_monitor_);
-    while (!servo_->waitForInitialized() && rclcpp::ok())
-    {
-      rclcpp::Clock& clock = *node_->get_clock();
-      RCLCPP_WARN_STREAM_THROTTLE(LOGGER, clock, 5000, "Waiting for ServoCalcs to recieve joint states");
-    }
-    
     servo_->start();
+    
+    // timer_ = node_->create_wall_timer(50ms, std::bind(&ServoCppDemo::publishCommands, this));
   }
 
 private:
@@ -180,15 +103,39 @@ private:
   rclcpp::Publisher<moveit_msgs::msg::PlanningScene>::SharedPtr scene_pub;
   rclcpp::Publisher<control_msgs::msg::JointJog>::SharedPtr joint_cmd_pub_;
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr twist_cmd_pub_;
-  rclcpp::Subscription<std_msgs::msg::Empty>::SharedPtr trigger_sub_;
-  rclcpp::Subscription<tf2_msgs::msg::TFMessage>::SharedPtr tf_sub_;
-  rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr sensor_sub_;
 
   bool  movement_mode_jog_;
 
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
   std::shared_ptr<planning_scene_monitor::PlanningSceneMonitor> planning_scene_monitor_;
   std::unique_ptr<moveit_servo::Servo> servo_;
+
+  size_t count_;
+  rclcpp::TimerBase::SharedPtr timer_;
+
+  void publishCommands()
+  {
+    // Publish joint commands for a little bit
+    if (count_ < 100)
+    {
+      auto msg = std::make_unique<control_msgs::msg::JointJog>();
+      msg->header.stamp = node_->now();
+      msg->joint_names.push_back("joint1");
+      msg->velocities.push_back(0.1);
+      joint_cmd_pub_->publish(std::move(msg));
+      ++count_;
+    }
+    // Then switch to twist commands
+    else if (count_ < 200)
+    {
+      auto msg = std::make_unique<geometry_msgs::msg::TwistStamped>();
+      msg->header.stamp = node_->now();
+      msg->header.frame_id = "link5";
+      msg->twist.linear.x = 0.1;
+      msg->twist.linear.z = 0.1;
+      twist_cmd_pub_->publish(std::move(msg));
+    }
+  }
 };
 
 int main(int argc, char** argv)
@@ -199,23 +146,17 @@ int main(int argc, char** argv)
   auto node = std::make_shared<rclcpp::Node>("servo_demo_node", node_options);
 
   // Pause for RViz to come up..
-  // rclcpp::sleep_for(std::chrono::seconds(4));
+  rclcpp::sleep_for(std::chrono::seconds(4));
 
   // We need to initialize the planning_scene_monitor here before publishing the collision object
   ServoCppDemo demo(node);
-
-  // Create collision object, in the way of servoing
-  moveit_msgs::msg::CollisionObject collision_object;
-  collision_object.header.frame_id = "link1";
-  collision_object.id = "box";
-
-  // Start the Servo object, and start publishing commands to it
-  demo.start();
 
   // Spin
   auto executor = std::make_unique<rclcpp::executors::MultiThreadedExecutor>();
   executor->add_node(node);
   executor->spin();
+
+  while(1){}
 
   rclcpp::shutdown();
   return 0;

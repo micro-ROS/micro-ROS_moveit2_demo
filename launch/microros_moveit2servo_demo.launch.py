@@ -37,11 +37,11 @@ def generate_launch_description():
     robot_description_semantic = {'robot_description_semantic' : robot_description_semantic_config}
 
     # A node to publish world -> panda_link0 transform
-    # static_tf = Node(package='tf2_ros',
-    #                  executable='static_transform_publisher',
-    #                  name='static_transform_publisher',
-    #                  output='log',
-    #                  arguments=['0.0', '0.0', '0.0', '0.0', '0.0', '0.0', 'world', 'link1'])
+    static_tf = Node(package='tf2_ros',
+                     executable='static_transform_publisher',
+                     name='static_transform_publisher',
+                     output='log',
+                     arguments=['0.0', '0.0', '0.0', '0.0', '0.0', '0.0', 'world', 'link1'])
 
     # The servo cpp interface demo
     # Creates the Servo node and publishes commands to it
@@ -49,25 +49,27 @@ def generate_launch_description():
         package='microros_moveit2_demo',
         executable='microros_moveit2servo_demo',
         output='screen',
-        parameters=[servo_params, robot_description, robot_description_semantic]
+        # parameters=[servo_params, robot_description, robot_description_semantic]
+        parameters=[servo_params, robot_description]
     )
 
     # Publishes tf's for the robot
-    # robot_state_publisher = Node(
-    #     package='robot_state_publisher',
-    #     executable='robot_state_publisher',
-    #     output='screen',
-    #     parameters=[robot_description]
-    # )
+    robot_state_publisher = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        output='screen',
+        parameters=[robot_description]
+    )
 
     # RViz
-    # rviz_config_file = get_package_share_directory('microros_moveit2_demo') + "/launch/microros_moveit2_demo_openmanipulator.rviz"
-    # rviz_node = Node(package='rviz2',
-    #                  executable='rviz2',
-    #                  name='rviz2',
-    #                  output='log',
-    #                  arguments=['-d', rviz_config_file],
-    #                  parameters=[robot_description, robot_description_semantic])
+    rviz_config_file = get_package_share_directory('microros_moveit2_demo') + "/launch/microros_moveit2_demo_openmanipulator.rviz"
+    rviz_node = Node(package='rviz2',
+                     executable='rviz2',
+                     name='rviz2',
+                     output='log',
+                     arguments=['-d', rviz_config_file],
+                     parameters=[robot_description, robot_description_semantic])
 
     # return LaunchDescription([ rviz_node, static_tf, servo_node, robot_state_publisher])
-    return LaunchDescription([ servo_node ])
+    return LaunchDescription([ rviz_node, static_tf, robot_state_publisher])
+    # return LaunchDescription([ servo_node ])
