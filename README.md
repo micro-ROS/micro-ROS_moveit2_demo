@@ -8,7 +8,7 @@ micro-ROS runs in a a [STM32L4 Development IoT kit](https://www.st.com/en/evalua
 
 The pose data is then forwarded to the ROS 2 world, where it is consumed by both RViz and MoveIt 2. RViz uses it directly to represent the position and orientation of the board in its graphical interface, and MoveIt 2 uses it to calculate the movement that the virtual arm has to perform to ‘touch’ it, according to its kinematic algorithms. The resulting movement is then integrated into RViz and represented by means of its virtual panda robotic arm, a standard tool used by MoveIt in tutorials and graphic interfaces.
 
-![Demo setup](images/demo.png)
+![Demo setup](https://raw.githubusercontent.com/micro-ROS/micro-ROS_moveit2_demo/foxy/images/demo.png)
 
 ## Usage
 
