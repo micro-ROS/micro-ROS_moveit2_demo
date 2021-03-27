@@ -44,8 +44,10 @@
 #include <std_msgs/msg/empty.hpp>
 
 // Servo
-#include <moveit_servo/servo_parameters.cpp>
-#include <moveit_servo/servo.h>
+//#include <moveit_servo/servo_parameters.cpp>
+#include </home/ubu/ws_moveit2/src/moveit2/moveit_ros/moveit_servo/src/servo_parameters.cpp>
+//#include <moveit_servo/servo.h>
+#include </home/ubu/ws_moveit2/src/moveit2/moveit_ros/moveit_servo/include/moveit_servo/servo.h>
 #include <moveit/planning_scene_monitor/planning_scene_monitor.h>
 
 using namespace std::chrono_literals;
